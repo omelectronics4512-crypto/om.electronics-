@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Portal | OM Mobile &amp; Electronics Dhanore</title>
+  <meta name="robots" content="noindex, nofollow">
+
+  <!-- Google Fonts: Manrope & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Material Symbols Outlined -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              DEFAULT: "#004ac6",
+              container: "#2563eb",
+              hover: "#003ea8",
+              light: "#dbe1ff",
+              dark: "#00174b"
+            },
+            secondary: {
+              DEFAULT: "#006a61",
+              container: "#0d9488",
+              light: "#86f2e4",
+              dark: "#00201d"
+            },
+            tertiary: {
+              DEFAULT: "#784b00",
+              container: "#f59e0b",
+              light: "#ffddb8",
+              dark: "#2a1700"
+            },
+            surface: {
+              DEFAULT: "#f9f9ff",
+              dim: "#d3daef",
+              bright: "#f9f9ff",
+              lowest: "#ffffff",
+              low: "#f1f3ff",
+              mid: "#e9edff",
+              high: "#e1e8fd",
+              highest: "#dce2f7"
+            },
+            "on-surface": "#141b2b",
+            "on-surface-variant": "#434655",
+            outline: "#737686",
+            "outline-variant": "#c3c6d7",
+            background: "#f9f9ff"
+          },
+          fontFamily: {
+            display: ["Manrope", "sans-serif"],
+            headline: ["Manrope", "sans-serif"],
+            body: ["Inter", "sans-serif"],
+            sans: ["Inter", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f3ff;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #c3c6d7;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #2563eb;
+    }
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+    .modal-content {
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  </style>
+
+  <!-- Centralized Store Script -->
+  <script src="store.js"></script>
+  <!-- Supabase JS Client SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body class="bg-surface-low font-body text-on-surface text-[15px] antialiased selection:bg-primary-light selection:text-primary-dark min-h-screen flex flex-col">
+
+  <!-- =========================================================================
+       1. AUTHENTICATION GATE (LOGIN SCREEN)
+       ========================================================================= -->
+  <div id="auth-gate-screen" class="fixed inset-0 z-50 bg-gradient-to-br from-primary-dark via-primary to-surface-low flex items-center justify-center p-4">
+    <div class="relative w-full max-w-md bg-surface-lowest rounded-3xl shadow-2xl border border-surface-mid p-6 sm:p-8 modal-content">
+      
+      <!-- Brand Logo & Header -->
+      <div class="flex flex-col items-center text-center mb-6">
+        <div class="w-16 h-16 rounded-2xl bg-primary-light/80 p-2.5 flex items-center justify-center mb-3 shadow-xs">
+          <img alt="OM Mobile Logo" class="h-10 w-auto object-contain" 
+               src="logo.png">
+        </div>
+        <h1 class="font-headline text-xl sm:text-2xl font-extrabold text-on-surface">Store Admin Portal</h1>
+        <p class="text-xs text-on-surface-variant mt-1">OM Mobile &amp; Electronics • Dhanore Branch No. 4, Pune</p>
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider mt-2.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+          <span>Restricted Management Access</span>
+        </span>
+      </div>
+
+      <!-- Login Form -->
+      <form id="admin-login-form" onsubmit="handleAdminLogin(event)" class="space-y-4 text-xs">
+        
+        <div>
+          <label class="block font-bold text-on-surface mb-1.5">Admin Username</label>
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-outline">person</span>
+            <input type="text" id="admin-username-input" required placeholder="Enter your username" 
+                   class="w-full pl-9 pr-3 py-2.5 rounded-xl bg-surface-low border border-outline-variant/60 focus:outline-none focus:ring-2 focus:ring-primary/30 text-xs font-medium">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-on-surface mb-1.5">Admin Password</label>
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-outline">lock</span>
+            <input type="password" id="admin-password-input" required placeholder="Enter your password" 
+                   class="w-full pl-9 pr-10 py-2.5 rounded-xl bg-surface-low border border-outline-variant/60 focus:outline-none focus:ring-2 focus:ring-primary/30 text-xs font-medium">
+            <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface">
+              <span id="password-toggle-icon" class="material-symbols-outlined text-[18px]">visibility</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-1">
+          <label class="flex items-center gap-1.5 text-xs text-on-surface-variant cursor-pointer">
+            <input type="checkbox" id="remember-admin-checkbox" checked class="accent-primary rounded">
+            <span>Keep me logged in</span>
+          </label>
+          
+        </div>
+
+        <div id="login-error-msg" class="hidden p-2.5 rounded-xl bg-red-50 border border-red-200 text-red-600 text-xs font-semibold text-center">
+          Invalid username or password. Please try again.
+        </div>
+
+        <button type="submit" 
+                class="w-full py-3 px-4 rounded-xl bg-primary hover:bg-primary-container text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 mt-2">
+          <span class="material-symbols-outlined text-[18px]">vpn_key</span>
+          <span>Access Store Dashboard</span>
+        </button>
+
+      </form>
+
+      <div class="mt-6 pt-4 border-t border-surface-mid text-center">
+        <a href="index.html" class="inline-flex items-center gap-1 text-xs font-semibold text-outline hover:text-primary transition-colors">
+          <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+          <span>Return to Public Website</span>
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       2. AUTHENTICATED ADMIN DASHBOARD
+       ========================================================================= -->
+  <div id="admin-dashboard-app" class="hidden flex-1 flex flex-col">
+    
+    <!-- Top Admin App Bar -->
+    <header class="bg-surface-lowest border-b border-surface-mid sticky top-0 z-40 shadow-xs">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+        
+        <div class="flex items-center gap-3">
+          <img alt="OM Mobile" class="h-8 w-auto object-contain" 
+               src="logo.png">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-headline text-base font-extrabold text-on-surface">OM Admin</span>
+              <span class="px-2 py-0.2 rounded bg-primary-light text-primary-dark text-[10px] font-bold uppercase">Branch No. 4</span>
+            </div>
+            <span class="hidden sm:inline text-[11px] text-outline">Dhanore Showroom • Product Catalog Manager</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2.5">
+          <!-- Cloud Database Status & Config Button -->
+          <button type="button" onclick="openCloudConfigModal()" id="cloud-status-badge" 
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-xs bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100" title="Configure Cloud Database (Supabase)">
+            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse" id="cloud-status-dot"></span>
+            <span id="cloud-status-text">Local Storage</span>
+          </button>
+          <a href="index.html" target="_blank" rel="noopener noreferrer" 
+             class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-low hover:bg-surface-mid text-on-surface text-xs font-semibold transition-colors border border-outline-variant/60" title="Open Storefront in New Tab">
+            <span class="material-symbols-outlined text-[16px] text-primary">open_in_new</span>
+            <span class="hidden sm:inline">View Live Store</span>
+          </a>
+          <button type="button" onclick="handleAdminLogout()" 
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold transition-colors">
+            <span class="material-symbols-outlined text-[16px]">logout</span>
+            <span class="hidden sm:inline">Logout</span>
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- Main Dashboard Container -->
+    <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      
+      <!-- Stats Overview Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        
+        <div class="p-4 sm:p-5 rounded-2xl bg-surface-lowest border border-surface-mid shadow-subtle flex flex-col justify-between">
+          <div class="flex items-center justify-between text-outline mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider">Total Products</span>
+            <span class="material-symbols-outlined text-[22px] text-primary">inventory_2</span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="font-headline text-2xl sm:text-3xl font-extrabold text-on-surface" id="stat-total-products">0</span>
+            <span class="text-[11px] text-outline">items in catalog</span>
+          </div>
+        </div>
+
+        <div class="p-4 sm:p-5 rounded-2xl bg-surface-lowest border border-surface-mid shadow-subtle flex flex-col justify-between">
+          <div class="flex items-center justify-between text-outline mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider">In Stock Ready</span>
+            <span class="material-symbols-outlined text-[22px] text-emerald-600">check_circle</span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="font-headline text-2xl sm:text-3xl font-extrabold text-emerald-600" id="stat-in-stock">0</span>
+            <span class="text-[11px] text-outline">available units</span>
+          </div>
+        </div>
+
+        <div class="p-4 sm:p-5 rounded-2xl bg-surface-lowest border border-surface-mid shadow-subtle flex flex-col justify-between">
+          <div class="flex items-center justify-between text-outline mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider">Smartphones</span>
+            <span class="material-symbols-outlined text-[22px] text-secondary">phone_iphone</span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="font-headline text-2xl sm:text-3xl font-extrabold text-secondary" id="stat-smartphones">0</span>
+            <span class="text-[11px] text-outline">5G devices</span>
+          </div>
+        </div>
+
+        <div class="p-4 sm:p-5 rounded-2xl bg-surface-lowest border border-surface-mid shadow-subtle flex flex-col justify-between">
+          <div class="flex items-center justify-between text-outline mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider">Laptops &amp; Other</span>
+            <span class="material-symbols-outlined text-[22px] text-tertiary">laptop_mac</span>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span class="font-headline text-2xl sm:text-3xl font-extrabold text-tertiary" id="stat-laptops">0</span>
+            <span class="text-[11px] text-outline">laptops &amp; audio</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Action & Toolbar Section -->
+      <div class="p-4 sm:p-5 rounded-2xl bg-surface-lowest border border-surface-mid shadow-subtle flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+        
+        <!-- Search & Filter Controls -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 flex-1 max-w-2xl">
+          <div class="relative flex-1">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-outline">search</span>
+            <input type="text" id="admin-search-input" placeholder="Search products by model, brand, spec..." 
+                   oninput="handleAdminSearch()" 
+                   class="w-full pl-9 pr-3 py-2 rounded-xl bg-surface-low border border-outline-variant/60 text-xs focus:outline-none focus:ring-2 focus:ring-primary/30">
+          </div>
+          <select id="admin-category-filter" onchange="handleAdminSearch()" 
+                  class="px-3 py-2 rounded-xl bg-surface-low border border-outline-variant/60 text-xs font-semibold text-on-surface">
+            <option value="all">All Categories</option>
+            <option value="smartphones">Smartphones</option>
+            <option value="laptops">Laptops</option>
+            <option value="audio">Audio &amp; TWS</option>
+            <option value="wearables">Wearables</option>
+            <option value="accessories">Accessories</option>
+            <option value="tv-appliances">TVs &amp; Appliances</option>
+          </select>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+          
+          <button type="button" onclick="openAddProductModal()" 
+                  class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-container text-white text-xs font-bold shadow-subtle transition-all">
+            <span class="material-symbols-outlined text-[18px]">add_circle</span>
+            <span>Add New Product</span>
+          </button>
+
+          <button type="button" onclick="handleLoadSampleProducts()" 
+                  class="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-secondary-light/60 hover:bg-secondary-light text-secondary-dark text-xs font-bold transition-all border border-secondary/20" title="Populate catalog with 16 authentic Dhanore products">
+            <span class="material-symbols-outlined text-[18px]">cloud_download</span>
+            <span class="hidden sm:inline">Load Sample (16 Items)</span>
+            <span class="sm:hidden">Sample</span>
+          </button>
+
+          <button type="button" onclick="handleClearAllProducts()" 
+                  class="inline-flex items-center justify-center p-2.5 rounded-xl bg-surface-low hover:bg-red-50 text-outline hover:text-red-600 transition-colors border border-outline-variant/60" title="Clear All Products from Store">
+            <span class="material-symbols-outlined text-[18px]">delete_sweep</span>
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- Products Management Table / Cards View -->
+      <div class="rounded-2xl bg-surface-lowest border border-surface-mid shadow-subtle overflow-hidden">
+        
+        <div class="p-4 border-b border-surface-mid flex items-center justify-between">
+          <h2 class="font-headline text-base font-bold text-on-surface">Store Inventory Catalog</h2>
+          <span class="text-xs text-outline" id="admin-table-count">0 products loaded</span>
+        </div>
+
+        <!-- Table Container -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-surface-low/60 text-outline font-bold border-b border-surface-mid">
+                <th class="p-3.5 pl-4">Product Details</th>
+                <th class="p-3.5">Brand</th>
+                <th class="p-3.5">Category</th>
+                <th class="p-3.5">Price &amp; EMI</th>
+                <th class="p-3.5">Stock Status</th>
+                <th class="p-3.5 text-right pr-4">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="admin-products-tbody">
+              <!-- Dynamically rendered -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Empty State in Table -->
+        <div id="admin-empty-state" class="hidden text-center py-16 px-4">
+          <span class="material-symbols-outlined text-4xl text-outline mb-2">inventory</span>
+          <h3 class="font-headline text-base font-bold text-on-surface">No Products Found</h3>
+          <p class="text-xs text-on-surface-variant max-w-sm mx-auto mt-1 mb-4">Click "Add New Product" to list your first device or "Load Sample" to populate demo inventory.</p>
+          <div class="flex items-center justify-center gap-2">
+            <button type="button" onclick="openAddProductModal()" class="px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold">Add First Product</button>
+            <button type="button" onclick="handleLoadSampleProducts()" class="px-4 py-2 rounded-xl bg-secondary text-white text-xs font-bold">Load Sample Inventory</button>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- =========================================================================
+       3. ADD / EDIT PRODUCT MODAL
+       ========================================================================= -->
+  <div id="product-editor-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs">
+    <div class="relative w-full max-w-2xl bg-surface-lowest rounded-2xl sm:rounded-3xl shadow-2xl border border-surface-mid overflow-hidden max-h-[92vh] flex flex-col modal-content">
+      
+      <!-- Modal Header -->
+      <div class="p-4 sm:p-5 border-b border-surface-mid flex items-center justify-between bg-surface-low/50">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-primary text-white flex items-center justify-center shadow-xs">
+            <span class="material-symbols-outlined text-[20px]" id="modal-title-icon">add_box</span>
+          </div>
+          <div>
+            <h3 class="font-headline text-base font-bold text-on-surface" id="modal-product-title">Add New Product</h3>
+            <span class="text-[11px] text-on-surface-variant">Configure hardware specs, price, and Dhanore stock</span>
+          </div>
+        </div>
+        <button type="button" onclick="closeProductEditorModal()" class="p-1.5 rounded-xl text-outline hover:text-on-surface hover:bg-surface-mid transition-colors">
+          <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+      </div>
+
+      <!-- Modal Body (Form) -->
+      <form id="product-editor-form" onsubmit="handleSaveProduct(event)" class="p-4 sm:p-6 overflow-y-auto space-y-4 text-xs">
+        <input type="hidden" id="edit-product-id">
+
+        <!-- Title & Brand -->
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+          <div class="sm:col-span-8">
+            <label class="block font-bold text-on-surface mb-1">Product Title *</label>
+            <input type="text" id="prod-name-input" required placeholder="e.g. Apple iPhone 15 (128GB, Black)" 
+                   class="w-full p-2.5 rounded-xl bg-surface-low border border-outline-variant/60 focus:ring-2 focus:ring-primary/20 text-xs font-semibold">
+          </div>
+          <div class="sm:col-span-4">
+            <label class="block font-bold text-on-surface mb-1">Brand *</label>
+            <select id="prod-brand-input" required class="w-full p-2.5 rounded-xl bg-surface-low border border-outline-variant/60 focus:ring-2 focus:ring-primary/20 text-xs font-semibold">
+              <option value="Apple">Apple</option>
+              <option value="Samsung">Samsung</option>
+              <option value="OnePlus">OnePlus</option>
+              <option value="Vivo">Vivo</option>
+              <option value="Xiaomi">Xiaomi / Redmi</option>
+              <option value="boAt">boAt</option>
+              <option value="HP">HP</option>
+              <option value="Lenovo">Lenovo</option>
+              <option value="ASUS">ASUS</option>
+              <option value="Realme">Realme</option>
+              <option value="Sony">Sony</option>
+              <option value="Other">Other Brand</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Category & Tag -->
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+          <div class="sm:col-span-6">
+            <label class="block font-bold text-on-surface mb-1">Category *</label>
+            <select id="prod-category-input" required class="w-full p-2.5 rounded-xl bg-surface-low border border-outline-variant/60 focus:ring-2 focus:ring-primary/20 text-xs font-semibold">
+              <option value="smartphones">Smartphones</option>
+              <option value="laptops">Laptops</option>
+              <option value="audio">Audio &amp; TWS</option>
+              <option value="wearables">Smartwatches / Wearables</option>
+              <option value="accessories">Original Accessories &amp; Chargers</option>
+              <option value="tv-appliances">Smart TVs &amp; Home Appliances</option>
+            </select>
+          </div>
+          <div class="sm:col-span-6">
+            <label class="block font-bold text-on-surface mb-1">Product Tag / Badge</label>
+            <input type="text" id="prod-tag-input" placeholder="e.g. Flagship 5G, Bestseller, Student Pick" 
+                   class="w-full p-2.5 rounded-xl bg-surface-low border border-outline-variant/60 focus:ring-2 focus:ring-primary/20 text-xs">
+          </div>
+        </div>
+
+        <!-- Pricing & 0% EMI -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 rounded-2xl bg-surface-low border border-surface-mid">
+          <div>
+            <label class="block font-bold text-on-surface mb-1">Selling Price (₹) *</label>
+            <input type="number" id="prod-price-input" required min="1" placeholder="e.g. 69900" 
+                   oninput="handleAutoCalculateEMI()"
+                   class="w-full p-2 rounded-xl bg-surface-lowest border border-outline-variant/60 text-xs font-bold">
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface mb-1">Original Price (₹)</label>
+            <input type="number" id="prod-origprice-input" min="1" placeholder="e.g. 79900" 
+                   class="w-full p-2 rounded-xl bg-surface-lowest border border-outline-variant/60 text-xs">
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface mb-1">0% Monthly EMI (₹)</label>
+            <input type="number" id="prod-emi-input" placeholder="Auto-calculated (12 mo)" 
+                   class="w-full p-2 rounded-xl bg-surface-lowest border border-outline-variant/60 text-xs font-semibold text-primary">
+          </div>
+        </div>
+
+        <!-- Stock Status & Stock Badge -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-on-surface mb-1">Stock Status</label>
+            <select id="prod-stock-input" class="w-full p-2.5 rounded-xl bg-surface-low border border-outline-variant/60 text-xs font-semibold">
+              <option value="In Stock - Dhanore Br. 4">In Stock - Dhanore Br. 4</option>
+              <option value="Ready at Dhanore Counter">Ready at Dhanore Counter</option>
+              <option value="Only 2 Units Left">Only 2 Units Left</option>
+              <option value="Available on Order">Available on Order</option>
+              <option value="Out of Stock">Out of Stock</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-on-surface mb-1">Rating &amp; Reviews</label>
+            <div class="grid grid-cols-2 gap-2">
+              <input type="number" id="prod-rating-input" step="0.1" min="1" max="5" value="4.8" placeholder="Rating (4.8)" class="p-2.5 rounded-xl bg-surface-low border border-outline-variant/60 text-xs">
+              <input type="number" id="prod-reviews-input" min="0" value="84" placeholder="Reviews count" class="p-2.5 rounded-xl bg-surface-low border border-outline-variant/60 text-xs">
+            </div>
+          </div>
+        </div>
+
+        <!-- Product Image (URL or Upload) -->
+        <div class="p-3.5 rounded-2xl bg-surface-low border border-surface-mid space-y-2.5">
+          <label class="block font-bold text-on-surface">Product Image (URL or Local File Upload) *</label>
+          <div class="flex items-center gap-2">
+            <input type="url" id="prod-image-url" placeholder="Paste image web URL..." 
+                   oninput="previewProductImage(this.value)"
+                   class="flex-1 p-2.5 rounded-xl bg-surface-lowest border border-outline-variant/60 text-xs font-mono">
+            <label class="px-3 py-2.5 rounded-xl bg-surface-lowest hover:bg-surface-mid border border-outline-variant/60 text-xs font-bold text-primary cursor-pointer shrink-0 flex items-center gap-1 shadow-xs">
+              <span class="material-symbols-outlined text-[16px]">upload_file</span>
+              <span>Upload Photo</span>
+              <input type="file" accept="image/*" class="hidden" onchange="handleImageFileUpload(event)">
+            </label>
+          </div>
+
+          <!-- Image Preview & Presets -->
+          <div class="flex items-center gap-3 pt-1">
+            <div class="w-14 h-14 rounded-xl bg-surface-lowest border border-surface-mid p-1 flex items-center justify-center shrink-0">
+              <img id="image-preview" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYEN-LXNFg3e1vo-HmSM3AVUBHvKpvE0jPrA7dYRkRnLH5_pVPnYimT2-6B_H0j590Rk-EcWKm3SCabEcnYCctpKWB5OiuMG4efrpePglxrG_nwGYflgo6wUyYjP9jlIMMzF_BI8dA1EtGGHwmDeiCSqbOFckhbpC_wgCzQaap8-3WnbaSMgSQGWq4AGqlX_Srm-D_Mg-F6S4y7k4lssA0wpWZlk0ck_7-nfCnfldwqvGUolNxJidoZw" 
+                   alt="Preview" class="w-full h-full object-contain">
+            </div>
+            <div class="flex-1 text-[11px] text-outline">
+              <span>Quick Presets:</span>
+              <div class="flex flex-wrap gap-1 mt-1">
+                <button type="button" onclick="applyImagePreset('iphone')" class="px-2 py-0.5 rounded bg-surface-lowest hover:bg-surface-mid text-[10px] font-semibold border border-outline-variant/60">iPhone 15</button>
+                <button type="button" onclick="applyImagePreset('galaxy')" class="px-2 py-0.5 rounded bg-surface-lowest hover:bg-surface-mid text-[10px] font-semibold border border-outline-variant/60">Galaxy S24</button>
+                <button type="button" onclick="applyImagePreset('laptop')" class="px-2 py-0.5 rounded bg-surface-lowest hover:bg-surface-mid text-[10px] font-semibold border border-outline-variant/60">HP Laptop</button>
+                <button type="button" onclick="applyImagePreset('audio')" class="px-2 py-0.5 rounded bg-surface-lowest hover:bg-surface-mid text-[10px] font-semibold border border-outline-variant/60">boAt Audio</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div>
+          <label class="block font-bold text-on-surface mb-1">Short Description</label>
+          <textarea id="prod-desc-input" rows="2" placeholder="e.g. Dynamic Island, 48MP Main camera, USB-C, official Apple warranty." 
+                    class="w-full p-2.5 rounded-xl bg-surface-low border border-outline-variant/60 focus:ring-2 focus:ring-primary/20 text-xs"></textarea>
+        </div>
+
+        <!-- Hardware Specifications -->
+        <div class="p-3.5 rounded-2xl bg-surface-low border border-surface-mid space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-on-surface">Hardware Specifications (For Quick View &amp; Compare Matrix)</span>
+            <span class="text-[10px] text-outline">Optional but recommended</span>
+          </div>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            <input type="text" id="spec-display" placeholder="Display: e.g. 6.1 OLED 120Hz" class="p-2 rounded-xl bg-surface-lowest border border-outline-variant/60">
+            <input type="text" id="spec-processor" placeholder="Processor: e.g. A16 Bionic / Snapdragon 8 Gen 3" class="p-2 rounded-xl bg-surface-lowest border border-outline-variant/60">
+            <input type="text" id="spec-storage" placeholder="RAM / Storage: e.g. 8GB RAM | 256GB Storage" class="p-2 rounded-xl bg-surface-lowest border border-outline-variant/60">
+            <input type="text" id="spec-battery" placeholder="Battery: e.g. 5000 mAh, 80W Fast Charge" class="p-2 rounded-xl bg-surface-lowest border border-outline-variant/60">
+            <input type="text" id="spec-camera" placeholder="Camera: e.g. 50MP Sony OIS + 32MP Front" class="p-2 rounded-xl bg-surface-lowest border border-outline-variant/60">
+            <input type="text" id="spec-os" placeholder="OS: e.g. Android 14 / Windows 11 Home" class="p-2 rounded-xl bg-surface-lowest border border-outline-variant/60">
+          </div>
+        </div>
+
+        <!-- Submit CTA -->
+        <div class="pt-2 flex items-center justify-end gap-2.5 border-t border-surface-mid">
+          <button type="button" onclick="closeProductEditorModal()" 
+                  class="px-4 py-2.5 rounded-xl bg-surface-low hover:bg-surface-mid text-on-surface font-semibold text-xs transition-colors">
+            Cancel
+          </button>
+          <button type="submit" 
+                  class="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-container text-white font-bold text-xs shadow-subtle transition-all flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[18px]">save</span>
+            <span>Save Product to Catalog</span>
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+  <!-- CLOUD DATABASE (SUPABASE) CONFIGURATION MODAL -->
+  <div id="cloud-config-modal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm p-4 overflow-y-auto items-center justify-center">
+    <div class="relative w-full max-w-lg bg-surface-lowest rounded-3xl p-6 sm:p-7 shadow-floating border border-surface-mid space-y-5 my-8">
+      
+      <div class="flex items-start justify-between gap-3 border-b border-surface-mid pb-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <span class="material-symbols-outlined text-[24px]">cloud_sync</span>
+          </div>
+          <div>
+            <h3 class="font-headline text-lg font-bold text-on-surface">Supabase Cloud Database</h3>
+            <p class="text-xs text-on-surface-variant">Sync products globally across all devices &amp; visitors</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeCloudConfigModal()" class="p-1.5 rounded-lg text-outline hover:text-on-surface hover:bg-surface-low transition-colors">
+          <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+      </div>
+
+      <!-- Current Mode Alert -->
+      <div id="modal-cloud-status-banner" class="p-3.5 rounded-2xl bg-surface-low border border-outline-variant/60 text-xs flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" id="modal-cloud-dot"></span>
+          <span class="font-bold text-on-surface" id="modal-cloud-mode-text">Current Mode: Local Storage (Single Device)</span>
+        </div>
+        <span class="text-[10px] text-outline font-mono" id="modal-cloud-table-name">Table: products</span>
+      </div>
+
+      <!-- Form Inputs -->
+      <div class="space-y-3.5 text-xs">
+        <div>
+          <label class="block font-bold text-on-surface mb-1">Supabase Project URL *</label>
+          <input type="url" id="cfg-supabase-url" placeholder="https://xyzabcdefg.supabase.co" 
+                 class="w-full p-2.5 rounded-xl bg-surface-low border border-outline-variant/60 font-mono text-xs focus:ring-2 focus:ring-primary/20">
+          <span class="text-[10px] text-outline mt-0.5 block">From Supabase Dashboard -&gt; Project Settings -&gt; API</span>
+        </div>
+
+        <div>
+          <label class="block font-bold text-on-surface mb-1">Supabase Anon Public API Key *</label>
+          <input type="password" id="cfg-supabase-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." 
+                 class="w-full p-2.5 rounded-xl bg-surface-low border border-outline-variant/60 font-mono text-xs focus:ring-2 focus:ring-primary/20">
+          <span class="text-[10px] text-outline mt-0.5 block">Public 'anon' key (safe for browser usage with RLS enabled)</span>
+        </div>
+
+        <!-- Connection Test Result Banner -->
+        <div id="test-connection-result" class="hidden p-2.5 rounded-xl text-xs font-semibold"></div>
+
+        <!-- Quick 3-Step Setup Guide -->
+        <div class="p-3.5 rounded-2xl bg-surface-low/60 border border-surface-mid space-y-1.5 text-[11px] text-on-surface-variant">
+          <span class="font-bold text-on-surface block text-xs">⚡ Quick 2-Minute Setup:</span>
+          <ol class="list-decimal pl-4 space-y-1">
+            <li>Create a free account at <strong>supabase.com</strong> and create a project.</li>
+            <li>In Supabase, open <strong>SQL Editor</strong>, paste <code>supabase_schema.sql</code> (included in your project folder) and click <strong>Run</strong>.</li>
+            <li>Copy your <strong>Project URL</strong> and <strong>anon key</strong> from <em>Project Settings -&gt; API</em>, paste them here and click <strong>Test &amp; Save</strong>!</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Modal Footer CTA -->
+      <div class="pt-3 border-t border-surface-mid flex flex-wrap items-center justify-between gap-2 text-xs">
+        <button type="button" onclick="handleClearCloudConfig()" 
+                class="px-3.5 py-2 rounded-xl text-red-600 hover:bg-red-50 font-semibold transition-colors">
+          Disconnect (Use Local Mode)
+        </button>
+
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="handleTestCloudConnection()" id="btn-test-cloud" 
+                  class="px-4 py-2 rounded-xl bg-surface-low hover:bg-surface-mid text-on-surface font-bold border border-outline-variant/60 transition-colors flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[16px]">network_check</span>
+            <span>Test Connection</span>
+          </button>
+          <button type="button" onclick="handleSaveCloudConfig()" id="btn-save-cloud" 
+                  class="px-5 py-2 rounded-xl bg-primary hover:bg-primary-container text-white font-bold shadow-subtle transition-all flex items-center gap-1.5">
+            <span class="material-symbols-outlined text-[16px]">cloud_done</span>
+            <span>Save &amp; Connect</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- =========================================================================
+       4. ADMIN JAVASCRIPT LOGIC
+       ========================================================================= -->
+  <script src="store.js"></script>
+  <script>
+    if (typeof getStoredProducts === 'undefined') {
+      document.write('<script src="../store.js"><\/script>');
+    }
+  </script>
+  <script>
+    // Store Admin Credentials
+    const ADMIN_CREDS = {
+      user: "guarav bhosle",
+      pass: "guarav@omelectronics"
+    };
+
+    let activeEditProductId = null;
+
+    /* Cloud Sync Status & Config Logic */
+    async function updateCloudStatusUI() {
+      const badge = document.getElementById("cloud-status-badge");
+      const dot = document.getElementById("cloud-status-dot");
+      const text = document.getElementById("cloud-status-text");
+      if (!badge || !dot || !text) return;
+
+      if (typeof isApiServerAvailable === 'function' && isApiServerAvailable()) {
+        try {
+          const res = await fetch('/api/status');
+          if (res.ok) {
+            const status = await res.json();
+            if (status.cloudConfigured) {
+              badge.className = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-xs bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100";
+              dot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+              text.textContent = "Cloud: .env Connected";
+              return;
+            } else {
+              badge.className = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-xs bg-blue-50 text-blue-800 border-blue-200 hover:bg-blue-100";
+              dot.className = "w-2 h-2 rounded-full bg-blue-500 animate-pulse";
+              text.textContent = "Server: .env File Storage";
+              return;
+            }
+          }
+        } catch (e) {}
+      }
+
+      const isCloud = typeof isSupabaseConfigured === 'function' && isSupabaseConfigured();
+      if (isCloud) {
+        badge.className = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-xs bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100";
+        dot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+        text.textContent = "Supabase Cloud: Active";
+      } else {
+        badge.className = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-xs bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100";
+        dot.className = "w-2 h-2 rounded-full bg-amber-500 animate-pulse";
+        text.textContent = "Local Storage (Device)";
+      }
+    }
+
+    function openCloudConfigModal() {
+      const config = typeof getSupabaseConfig === 'function' ? getSupabaseConfig() : { url: '', anonKey: '' };
+      document.getElementById("cfg-supabase-url").value = config.url || '';
+      document.getElementById("cfg-supabase-key").value = config.anonKey || '';
+
+      const isCloud = typeof isSupabaseConfigured === 'function' && isSupabaseConfigured();
+      const modeText = document.getElementById("modal-cloud-mode-text");
+      const dot = document.getElementById("modal-cloud-dot");
+      const resBox = document.getElementById("test-connection-result");
+      if (resBox) resBox.classList.add("hidden");
+
+      if (isCloud) {
+        modeText.textContent = "Current Mode: Connected to Supabase Cloud";
+        dot.className = "w-2.5 h-2.5 rounded-full bg-emerald-500";
+      } else {
+        modeText.textContent = "Current Mode: Local Storage (Single Device)";
+        dot.className = "w-2.5 h-2.5 rounded-full bg-amber-500";
+      }
+
+      const modal = document.getElementById("cloud-config-modal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function closeCloudConfigModal() {
+      const modal = document.getElementById("cloud-config-modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+
+    async function handleTestCloudConnection() {
+      const url = document.getElementById("cfg-supabase-url").value.trim();
+      const key = document.getElementById("cfg-supabase-key").value.trim();
+      const resBox = document.getElementById("test-connection-result");
+      const btn = document.getElementById("btn-test-cloud");
+
+      if (!url || !key) {
+        resBox.className = "p-3 rounded-xl text-xs font-semibold bg-red-50 text-red-700 border border-red-200 block";
+        resBox.textContent = "Please fill in both Supabase URL and anon Key.";
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="material-symbols-outlined text-[16px] animate-spin">refresh</span><span>Testing...</span>';
+
+      const result = await testSupabaseConnection(url, key);
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined text-[16px]">network_check</span><span>Test Connection</span>';
+
+      if (result.ok) {
+        resBox.className = "p-3 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 block";
+        resBox.textContent = "Connection Successful! Products table reached.";
+      } else {
+        resBox.className = "p-3 rounded-xl text-xs font-semibold bg-red-50 text-red-700 border border-red-200 block";
+        resBox.textContent = "Connection Failed: " + result.message;
+      }
+    }
+
+    async function handleSaveCloudConfig() {
+      const url = document.getElementById("cfg-supabase-url").value.trim();
+      const anonKey = document.getElementById("cfg-supabase-key").value.trim();
+      const btn = document.getElementById("btn-save-cloud");
+
+      if (!url || !anonKey) {
+        showAdminToast("Please provide both Supabase Project URL and anon Key.");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="material-symbols-outlined text-[16px] animate-spin">sync</span><span>Connecting...</span>';
+
+      const test = await testSupabaseConnection(url, anonKey);
+      if (!test.ok) {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined text-[16px]">cloud_done</span><span>Save & Connect</span>';
+        alert("Could not connect to Supabase: " + test.message + "\n\nPlease make sure you ran the 'supabase_schema.sql' script in Supabase SQL Editor!");
+        return;
+      }
+
+      saveSupabaseConfig({ url, anonKey, tableName: 'products' });
+      updateCloudStatusUI();
+
+      // Fetch cloud products
+      await fetchStoreProductsAsync();
+      refreshAdminProductsTable();
+      closeCloudConfigModal();
+
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined text-[16px]">cloud_done</span><span>Save & Connect</span>';
+      showAdminToast("Supabase Cloud Connected! Products synchronized.");
+    }
+
+    function handleClearCloudConfig() {
+      if (confirm("Disconnect Supabase Cloud and revert back to browser Local Storage?")) {
+        clearSupabaseConfig();
+        updateCloudStatusUI();
+        refreshAdminProductsTable();
+        closeCloudConfigModal();
+        showAdminToast("Reverted to local device storage.");
+      }
+    }
+
+    // Check existing session on load
+    document.addEventListener("DOMContentLoaded", () => {
+      updateCloudStatusUI();
+      const isAuth = sessionStorage.getItem("om_admin_auth") === "true" || localStorage.getItem("om_admin_auth") === "true";
+      if (isAuth) {
+        unlockAdminDashboard();
+      }
+
+      // If Supabase cloud is configured, pull fresh products in background
+      if (typeof fetchStoreProductsAsync === 'function') {
+        fetchStoreProductsAsync().then(() => {
+          refreshAdminProductsTable();
+        }).catch(() => {});
+      }
+
+      if (typeof subscribeToStoreRealtime === 'function') {
+        subscribeToStoreRealtime(() => {
+          refreshAdminProductsTable();
+          updateCloudStatusUI();
+        });
+      }
+    });
+
+    /* Login & Authentication */
+    async function handleAdminLogin(e) {
+      e.preventDefault();
+      const user = document.getElementById("admin-username-input").value.trim().toLowerCase();
+      const pass = document.getElementById("admin-password-input").value;
+      const remember = document.getElementById("remember-admin-checkbox").checked;
+      const errorMsg = document.getElementById("login-error-msg");
+
+      // 1. Try secure server backend login if running on Node server
+      if (typeof isApiServerAvailable === 'function' && isApiServerAvailable()) {
+        try {
+          const res = await fetch('/api/admin/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: user, password: pass })
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            if (remember) localStorage.setItem("om_admin_auth", "true");
+            else sessionStorage.setItem("om_admin_auth", "true");
+            errorMsg.classList.add("hidden");
+            unlockAdminDashboard();
+            showAdminToast("Welcome Gaurav Bhosle! Logged in via Secure .env Backend.");
+            return;
+          } else {
+            errorMsg.classList.remove("hidden");
+            showAdminToast(data.message || "Authentication failed.");
+            return;
+          }
+        } catch (err) {
+          console.warn("Backend auth offline, using fallback verification:", err);
+        }
+      }
+
+      if (user === ADMIN_CREDS.user.toLowerCase() && pass === ADMIN_CREDS.pass) {
+        if (remember) {
+          localStorage.setItem("om_admin_auth", "true");
+        } else {
+          sessionStorage.setItem("om_admin_auth", "true");
+        }
+        errorMsg.classList.add("hidden");
+        unlockAdminDashboard();
+        showAdminToast("Welcome, Store Admin! Logged in successfully.");
+      } else {
+        errorMsg.classList.remove("hidden");
+        showAdminToast("Authentication failed. Please verify credentials.");
+      }
+    }
+
+    function togglePasswordVisibility() {
+      const input = document.getElementById("admin-password-input");
+      const icon = document.getElementById("password-toggle-icon");
+      if (input.type === "password") {
+        input.type = "text";
+        icon.textContent = "visibility_off";
+      } else {
+        input.type = "password";
+        icon.textContent = "visibility";
+      }
+    }
+
+    function handleAdminLogout() {
+      sessionStorage.removeItem("om_admin_auth");
+      localStorage.removeItem("om_admin_auth");
+      document.getElementById("auth-gate-screen").classList.remove("hidden");
+      document.getElementById("admin-dashboard-app").classList.add("hidden");
+      document.getElementById("admin-password-input").value = "";
+      showAdminToast("Logged out successfully.");
+    }
+
+    function unlockAdminDashboard() {
+      document.getElementById("auth-gate-screen").classList.add("hidden");
+      document.getElementById("admin-dashboard-app").classList.remove("hidden");
+      refreshAdminProductsTable();
+    }
+
+    /* Table Refresh & Rendering */
+    function refreshAdminProductsTable() {
+      const products = getStoredProducts();
+      const tbody = document.getElementById("admin-products-tbody");
+      const emptyState = document.getElementById("admin-empty-state");
+      const countLabel = document.getElementById("admin-table-count");
+
+      // Update Top Stats
+      document.getElementById("stat-total-products").textContent = products.length;
+      document.getElementById("stat-in-stock").textContent = products.filter(p => !p.stockStatus?.toLowerCase().includes("out")).length;
+      document.getElementById("stat-smartphones").textContent = products.filter(p => p.category === "smartphones").length;
+      document.getElementById("stat-laptops").textContent = products.filter(p => p.category === "laptops" || p.category === "audio").length;
+
+      const query = document.getElementById("admin-search-input")?.value.trim().toLowerCase() || "";
+      const catFilter = document.getElementById("admin-category-filter")?.value || "all";
+
+      const filtered = products.filter(p => {
+        const matchesCat = catFilter === "all" || p.category === catFilter;
+        const matchesQuery = !query || 
+                             p.name?.toLowerCase().includes(query) || 
+                             p.brand?.toLowerCase().includes(query) ||
+                             p.description?.toLowerCase().includes(query);
+        return matchesCat && matchesQuery;
+      });
+
+      countLabel.textContent = `${filtered.length} of ${products.length} products`;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = "";
+        emptyState.classList.remove("hidden");
+        return;
+      }
+
+      emptyState.classList.add("hidden");
+
+      tbody.innerHTML = filtered.map(product => {
+        return `
+          <tr class="border-b border-surface-mid hover:bg-surface-low/50 transition-colors">
+            
+            <!-- Details -->
+            <td class="p-3.5 pl-4">
+              <div class="flex items-center gap-3">
+                <img src="${product.image}" alt="${product.name}" class="w-12 h-12 rounded-xl object-contain bg-surface-low p-1 shrink-0 border border-surface-mid">
+                <div class="truncate max-w-xs">
+                  <h4 class="font-bold text-on-surface truncate">${product.name}</h4>
+                  <div class="flex items-center gap-1.5 mt-0.5">
+                    <span class="px-1.5 py-0.2 rounded text-[10px] font-bold ${product.tagColor || 'bg-primary-light text-primary-dark'}">${product.tag || 'Standard'}</span>
+                    <span class="text-[11px] text-outline truncate">${product.description || ''}</span>
+                  </div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Brand -->
+            <td class="p-3.5 font-bold text-on-surface uppercase text-[11px]">${product.brand}</td>
+
+            <!-- Category -->
+            <td class="p-3.5 capitalize text-on-surface-variant">${product.category}</td>
+
+            <!-- Price & EMI -->
+            <td class="p-3.5">
+              <div class="font-extrabold text-primary tabular-nums">₹${Number(product.price).toLocaleString('en-IN')}</div>
+              ${product.emiPerMonth ? `<span class="text-[10px] text-secondary font-semibold">0% EMI: ₹${product.emiPerMonth}/mo</span>` : ''}
+            </td>
+
+            <!-- Stock Status -->
+            <td class="p-3.5">
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${product.stockStatus?.toLowerCase().includes('out') ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'}">
+                <span class="w-1.5 h-1.5 rounded-full ${product.stockStatus?.toLowerCase().includes('out') ? 'bg-red-500' : 'bg-emerald-500'}"></span>
+                <span>${product.stockStatus || 'In Stock'}</span>
+              </span>
+            </td>
+
+            <!-- Actions -->
+            <td class="p-3.5 text-right pr-4">
+              <div class="flex items-center justify-end gap-1.5">
+                <button type="button" onclick="openEditProductModal('${product.id}')" 
+                        class="p-1.5 rounded-lg text-outline hover:text-primary hover:bg-surface-mid transition-colors" title="Edit Product">
+                  <span class="material-symbols-outlined text-[18px]">edit</span>
+                </button>
+                <button type="button" onclick="handleDeleteProduct('${product.id}')" 
+                        class="p-1.5 rounded-lg text-outline hover:text-red-600 hover:bg-red-50 transition-colors" title="Delete Product">
+                  <span class="material-symbols-outlined text-[18px]">delete</span>
+                </button>
+              </div>
+            </td>
+
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function handleAdminSearch() {
+      refreshAdminProductsTable();
+    }
+
+    /* Modal Form Operations (Add / Edit) */
+    function openAddProductModal() {
+      activeEditProductId = null;
+      document.getElementById("modal-title-icon").textContent = "add_box";
+      document.getElementById("modal-product-title").textContent = "Add New Product";
+      document.getElementById("product-editor-form").reset();
+      document.getElementById("edit-product-id").value = "";
+      applyImagePreset("iphone");
+
+      const modal = document.getElementById("product-editor-modal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function openEditProductModal(productId) {
+      const products = getStoredProducts();
+      const product = products.find(p => p.id === productId);
+      if (!product) return;
+
+      activeEditProductId = productId;
+      document.getElementById("modal-title-icon").textContent = "edit";
+      document.getElementById("modal-product-title").textContent = "Edit Product: " + product.name;
+      document.getElementById("edit-product-id").value = product.id;
+
+      document.getElementById("prod-name-input").value = product.name || "";
+      document.getElementById("prod-brand-input").value = product.brand || "Apple";
+      document.getElementById("prod-category-input").value = product.category || "smartphones";
+      document.getElementById("prod-tag-input").value = product.tag || "";
+      document.getElementById("prod-price-input").value = product.price || "";
+      document.getElementById("prod-origprice-input").value = product.originalPrice || "";
+      document.getElementById("prod-emi-input").value = product.emiPerMonth || "";
+      document.getElementById("prod-stock-input").value = product.stockStatus || "In Stock - Dhanore Br. 4";
+      document.getElementById("prod-rating-input").value = product.rating || 4.8;
+      document.getElementById("prod-reviews-input").value = product.reviews || 50;
+      document.getElementById("prod-image-url").value = product.image || "";
+      previewProductImage(product.image);
+      document.getElementById("prod-desc-input").value = product.description || "";
+
+      // Specs
+      const specs = product.specs || {};
+      document.getElementById("spec-display").value = specs["Display"] || "";
+      document.getElementById("spec-processor").value = specs["Processor"] || "";
+      document.getElementById("spec-storage").value = specs["RAM / Storage"] || "";
+      document.getElementById("spec-battery").value = specs["Battery"] || "";
+      document.getElementById("spec-camera").value = specs["Camera"] || "";
+      document.getElementById("spec-os").value = specs["OS"] || "";
+
+      const modal = document.getElementById("product-editor-modal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function closeProductEditorModal() {
+      const modal = document.getElementById("product-editor-modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+
+    async function handleSaveProduct(e) {
+      e.preventDefault();
+
+      const name = document.getElementById("prod-name-input").value.trim();
+      const brand = document.getElementById("prod-brand-input").value;
+      const category = document.getElementById("prod-category-input").value;
+      const tag = document.getElementById("prod-tag-input").value.trim() || (brand + " Official");
+      const price = Number(document.getElementById("prod-price-input").value) || 0;
+      const originalPrice = Number(document.getElementById("prod-origprice-input").value) || (price + Math.round(price * 0.12));
+      const emiPerMonth = Number(document.getElementById("prod-emi-input").value) || Math.round(price / 12);
+      const stockStatus = document.getElementById("prod-stock-input").value;
+      const rating = parseFloat(document.getElementById("prod-rating-input").value) || 4.8;
+      const reviews = parseInt(document.getElementById("prod-reviews-input").value) || 60;
+      const image = document.getElementById("prod-image-url").value.trim() || document.getElementById("image-preview").src;
+      const description = document.getElementById("prod-desc-input").value.trim();
+
+      const specs = {
+        "Display": document.getElementById("spec-display").value.trim() || "FHD+ AMOLED Display",
+        "Processor": document.getElementById("spec-processor").value.trim() || "High Performance Octa-Core",
+        "RAM / Storage": document.getElementById("spec-storage").value.trim() || "8GB RAM | 128GB Storage",
+        "Battery": document.getElementById("spec-battery").value.trim() || "5000 mAh Fast Charge",
+        "Camera": document.getElementById("spec-camera").value.trim() || "50MP AI Dual Camera",
+        "OS": document.getElementById("spec-os").value.trim() || "Android / Official OS",
+        "Warranty": "1 Year Manufacturer Warranty"
+      };
+
+      const tagColor = category === 'smartphones' ? 'bg-primary-light text-primary-dark' : 
+                       category === 'laptops' ? 'bg-secondary-light text-secondary-dark' : 'bg-tertiary-light text-tertiary-dark';
+
+      const payload = {
+        name,
+        brand,
+        category,
+        tag,
+        tagColor,
+        price,
+        originalPrice,
+        emiPerMonth,
+        stockStatus,
+        rating,
+        reviews,
+        image,
+        description,
+        specs
+      };
+
+      if (activeEditProductId) {
+        await updateStoreProductAsync(activeEditProductId, payload);
+        showAdminToast(`Updated: ${name}`);
+      } else {
+        await addStoreProductAsync(payload);
+        showAdminToast(`Added new product: ${name}`);
+      }
+
+      closeProductEditorModal();
+      refreshAdminProductsTable();
+    }
+
+    async function handleDeleteProduct(productId) {
+      const p = getStoredProducts().find(item => item.id === productId);
+      const name = p ? p.name : "Product";
+      if (confirm(`Are you sure you want to delete "${name}" from the store catalog?`)) {
+        await deleteStoreProductAsync(productId);
+        showAdminToast(`Deleted: ${name}`);
+        refreshAdminProductsTable();
+      }
+    }
+
+    async function handleLoadSampleProducts() {
+      if (confirm("Load 16 authentic Dhanore store sample devices into catalog?")) {
+        await loadSampleStoreProductsAsync();
+        refreshAdminProductsTable();
+        showAdminToast("16 sample products loaded into store catalog!");
+      }
+    }
+
+    async function handleClearAllProducts() {
+      if (confirm("Are you sure you want to clear all products? The catalog will be completely empty.")) {
+        await clearAllStoreProductsAsync();
+        refreshAdminProductsTable();
+        showAdminToast("All products cleared from catalog.");
+      }
+    }
+
+    function handleAutoCalculateEMI() {
+      const price = Number(document.getElementById("prod-price-input").value) || 0;
+      if (price > 0) {
+        const emi = Math.round(price / 12);
+        document.getElementById("prod-emi-input").value = emi;
+        if (!document.getElementById("prod-origprice-input").value) {
+          document.getElementById("prod-origprice-input").value = Math.round(price * 1.15);
+        }
+      }
+    }
+
+    function previewProductImage(url) {
+      const img = document.getElementById("image-preview");
+      if (url && url.length > 5) {
+        img.src = url;
+      }
+    }
+
+    function handleImageFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const base64Url = event.target.result;
+        document.getElementById("prod-image-url").value = base64Url;
+        previewProductImage(base64Url);
+        showAdminToast("Local photo loaded successfully!");
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function applyImagePreset(type) {
+      const presets = {
+        iphone: "https://lh3.googleusercontent.com/aida-public/AB6AXuBYEN-LXNFg3e1vo-HmSM3AVUBHvKpvE0jPrA7dYRkRnLH5_pVPnYimT2-6B_H0j590Rk-EcWKm3SCabEcnYCctpKWB5OiuMG4efrpePglxrG_nwGYflgo6wUyYjP9jlIMMzF_BI8dA1EtGGHwmDeiCSqbOFckhbpC_wgCzQaap8-3WnbaSMgSQGWq4AGqlX_Srm-D_Mg-F6S4y7k4lssA0wpWZlk0ck_7-nfCnfldwqvGUolNxJidoZw",
+        galaxy: "https://lh3.googleusercontent.com/aida-public/AB6AXuDMmYhDCTddDQM8S3XSvuzCU5Ki1rkjjREWbquKTQZWWghenDLYeVxh8EUzR9POXbOYXmN7AEqOrfikeAo959HAyZm5MyJBna9faAxXND0odERb_BegG0rMchEly_f1NQClVBLuCEeSAijNxBCPznxePCPf56vYN8ZFAd4ipk4Vj5SyNhuA0dDmse6sWjXmdp2VwY0w10aqkLBW3tnQgxgh3AUCeSyXPld0uNPuKsfNSBdpaUW3vbAU3A",
+        laptop: "https://lh3.googleusercontent.com/aida-public/AB6AXuAUzoaOnkR2uywaR6oAASK8zBgqvFUOPQrzAMzcG0ep-ob1DLIXj9dSUA7npurEyT4gQLTlOeaS8xL57KETI17rCYZIiIOZ7V1yGeUOEF6aQpLb6GM9fmMCjGz6EAK3eD1oe5nrPdH_et49PKfDt_tCP77aLzPqilS6mwVso2Z46TdAR3Vmp5KzoTB78m9euzw1SblMGKyG5mACD-minhbaSzzhP4puq3YkILG4yOnjIhx1xzCQUA5CXQ",
+        audio: "https://lh3.googleusercontent.com/aida-public/AB6AXuBYEN-LXNFg3e1vo-HmSM3AVUBHvKpvE0jPrA7dYRkRnLH5_pVPnYimT2-6B_H0j590Rk-EcWKm3SCabEcnYCctpKWB5OiuMG4efrpePglxrG_nwGYflgo6wUyYjP9jlIMMzF_BI8dA1EtGGHwmDeiCSqbOFckhbpC_wgCzQaap8-3WnbaSMgSQGWq4AGqlX_Srm-D_Mg-F6S4y7k4lssA0wpWZlk0ck_7-nfCnfldwqvGUolNxJidoZw"
+      };
+
+      const url = presets[type] || presets.iphone;
+      document.getElementById("prod-image-url").value = url;
+      previewProductImage(url);
+    }
+
+    function showAdminToast(msg) {
+      const container = document.getElementById("toast-container");
+      if (!container) return;
+
+      const toast = document.createElement("div");
+      toast.className = "px-4 py-2.5 rounded-xl bg-on-surface text-white text-xs font-semibold shadow-floating flex items-center gap-2 transform transition-all duration-300 translate-y-2 opacity-0";
+      toast.innerHTML = `
+        <span class="material-symbols-outlined text-[16px] text-emerald-400">check_circle</span>
+        <span>${msg}</span>
+      `;
+
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.classList.remove("translate-y-2", "opacity-0");
+      }, 10);
+
+      setTimeout(() => {
+        toast.classList.add("opacity-0", "translate-y-2");
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+  </script>
+
+</body>
+</html>
